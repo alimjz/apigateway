@@ -8,12 +8,13 @@ import org.springframework.data.annotation.Id;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Arrays;
+import java.io.Serializable;
+
 
 @Data
 @Document(collection = "tokens")
 @NoArgsConstructor
-public class TokenImpl implements Token {
+public class TokenImpl implements Token, Serializable {
 
     @Id
     private String key;

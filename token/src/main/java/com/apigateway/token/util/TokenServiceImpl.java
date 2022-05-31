@@ -2,7 +2,6 @@ package com.apigateway.token.util;
 
 import com.apigateway.token.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.core.token.Token;
@@ -10,13 +9,10 @@ import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
-
-import java.util.Arrays;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -30,12 +26,15 @@ public class TokenServiceImpl implements TokenService {
     TokenRepository tokenRepository;
     MessageDigest messageDigest;
 
+
     @Autowired
     private void setTokenRepository(TokenRepository tokenRepository){
         this.tokenRepository = tokenRepository;
     }
     @Autowired
     private void setMessageDigest(MessageDigest messageDigest){this.messageDigest= messageDigest;}
+
+
     @Override
     public Token allocateToken(String extendedInformation) {
         Assert.notNull(extendedInformation,
