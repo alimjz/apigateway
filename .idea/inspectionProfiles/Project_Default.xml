@@ -5,6 +5,7 @@
       <option name="customHeaders">
         <set>
           <option value="localhost" />
+          <option value="MyCustomHeader" />
         </set>
       </option>
     </inspection_tool>

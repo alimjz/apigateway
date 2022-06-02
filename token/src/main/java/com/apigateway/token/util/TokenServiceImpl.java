@@ -3,6 +3,8 @@ package com.apigateway.token.util;
 import com.apigateway.token.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.core.token.Token;
 import org.springframework.security.core.token.TokenService;
@@ -80,5 +82,11 @@ public class TokenServiceImpl implements TokenService {
     public boolean isValid(String digest){
         List<TokenImpl> tokens = tokenRepository.findByDigest(digest);
         return tokens.size() > 0;
+    }
+
+    public List<TokenImpl> findAllTokens(int OffSet, int page){
+        Pageable pageable = PageRequest.of(OffSet,page);//
+        List<TokenImpl> tokenList =  tokenRepository.findAllPages(pageable);
+        return tokenList;
     }
 }

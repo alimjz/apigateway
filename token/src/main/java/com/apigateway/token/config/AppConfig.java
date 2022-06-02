@@ -3,6 +3,7 @@ package com.apigateway.token.config;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 
 
 import java.security.MessageDigest;
@@ -14,6 +15,8 @@ public class AppConfig {
     public MessageDigest getMessageDigest(){
         return MessageDigest.getInstance("MD5");
     }
+
+
 
 
 }
