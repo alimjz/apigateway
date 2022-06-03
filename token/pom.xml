@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.0.0.Beta3</version>
+            <version>1.4.2.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -117,7 +117,7 @@
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.0.0.Beta3</version>
+                            <version>1.4.2.Final</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
