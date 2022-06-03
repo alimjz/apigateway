@@ -1,5 +1,3 @@
-# apigateway
-
 # Project Explanations
 
 The following was discovered as part of building this project:
@@ -177,6 +175,7 @@ public class TokenDtoConvertorImpl implements TokenDtoConvertor {
     }
 }
 ````
+* [REST APIs](): A controller defined in both core and Token modules. these controllers are under development to provide token authentication before invoking APIs.
 
 
 
