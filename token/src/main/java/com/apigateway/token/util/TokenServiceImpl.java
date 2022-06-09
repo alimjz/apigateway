@@ -79,7 +79,7 @@ public class TokenServiceImpl implements TokenService {
             return null;
     }
 
-    public boolean isValid(String digest){
+    public boolean isValid(String digest, String id){
         List<TokenImpl> tokens = tokenRepository.findByDigest(digest);
         return tokens.size() > 0;
     }

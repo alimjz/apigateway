@@ -17,4 +17,6 @@ public interface TokenRepository extends MongoRepository<TokenImpl,String> {
 
     @Query("FROM TOKENS")
     List<TokenImpl> findAllPages(Pageable pagination);
+
+    List<TokenImpl> findByDigestAndKey(String digest,String key);
 }
