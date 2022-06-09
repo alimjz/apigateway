@@ -76,7 +76,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         apiError.addValidationErrors(ex.getConstraintViolations());
         return buildResponseEntity(apiError);
     }
-
+    //Exception Handler
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<Object> handleInvalidToken(AuthenticationException ex) {
         ApiError apiError = new ApiError(NOT_FOUND);
