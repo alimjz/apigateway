@@ -1,7 +1,7 @@
 package com.apigateway.core.util;
 
 //import com.apigateway.token.entities.RequestTokenAuth;
-import com.apigateway.token.entities.RequestTokenAuth;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

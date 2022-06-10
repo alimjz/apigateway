@@ -5,8 +5,10 @@ import com.apigateway.core.exception.AuthenticationException;
 import com.apigateway.core.exception.RestExceptionHandler;
 import com.apigateway.core.util.MovieItems;
 import com.apigateway.core.util.RequestMovieTopRank;
-import com.apigateway.token.entities.RequestTokenAuth;
-import com.apigateway.token.entities.ResponseTokenAuth;
+
+import com.apigateway.core.util.RequestTokenAuth;
+import com.apigateway.core.util.ResponseTokenAuth;
+import io.github.bucket4j.Bucket;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 
-@RestController("/api/v1/movies")
+@RequestMapping("/api/v1/movies")
+@RestController()
 @Slf4j
 public class ApiController {
 
@@ -47,14 +50,14 @@ public class ApiController {
     }
     @Operation(summary = "Query top 250 list of IMDB",description = "the token should be valid. otherwise, it return error.",operationId = "topRankByRestTemplate()")
     @PostMapping("/top250")
-    public MovieItems topRankByRestTemplate(@RequestHeader("digest") String digest,
+    public ResponseEntity<MovieItems> topRankByRestTemplate(@RequestHeader("digest") String digest,
                                         @RequestBody RequestMovieTopRank requestMovieTopRank) throws AuthenticationException{
             authorize(digest,requestMovieTopRank);
             String url = "https://imdb-api.com/en/API/Top250Movies/" + API_KEY;
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
             HttpEntity<String> stringHttpEntity = new HttpEntity<String>(httpHeaders);
-            return restTemplate.exchange(url, HttpMethod.GET,stringHttpEntity,MovieItems.class).getBody();
+            return ResponseEntity.ok(restTemplate.exchange(url, HttpMethod.GET,stringHttpEntity,MovieItems.class).getBody());
 
     }
 

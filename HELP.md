@@ -298,9 +298,9 @@ Also below Method implemented in RESTException Handler :
 ````
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<Object> handleInvalidToken(AuthenticationException ex) {
-        ApiError apiError = new ApiError(NOT_FOUND);
-        apiError.setMessage("The Token is Expired or Invalid.");
-        return buildResponseEntity(apiError);
+        ApiError requestError = new ApiError(NOT_FOUND);
+        requestError.setMessage("The Token is Expired or Invalid.");
+        return buildResponseEntity(requestError);
     }
 ````
 so, in case of invalid token, below Error will return:
