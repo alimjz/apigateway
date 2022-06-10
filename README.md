@@ -15,14 +15,16 @@ Below dependencies are used to create this project.
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/#build-image)
-* [Spring Configuration Processor](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#configuration-metadata-annotation-processor)
-* [Spring Security](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security)
+* [Spring Boot Security](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/#build-image)
+
+* [Bucket4J](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security)
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#using-boot-devtools)
 * [Spring Native Reference Guide](https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/)
 * [Spring Data MongoDB](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
-* [OAuth2 Client](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security-oauth2-client)
-* [OAuth2 Resource Server](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security-oauth2-server)
+* [Swagger Open API](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+* [Actuator](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+* [Jackson](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+
 
 # Practice Part
 
@@ -278,7 +280,7 @@ public class ApiController {
 
 * [Exception Handling](): I did a customization on exception handling. the case is that if the authentication info is wrong, then a customized exception will trigger.
 
-My exception Class:
+My exceptions Class:
 ````
 public class AuthenticationException extends RuntimeException{
     public AuthenticationException(Class clazz){
@@ -292,6 +294,15 @@ public class AuthenticationException extends RuntimeException{
         return StringUtils.capitalize(entity) + "Invalid Authentication happened.";
     }
 }
+
+public class LimitExceedException extends RuntimeException{
+    public LimitExceedException(Class clazz){
+        super(LimitExceedException.generateMessage(clazz.getFields()));
+    }
+    private static String generateMessage(Field[] field) {
+        return Arrays.toString(field) + "Maximum Limit Exceeded." ;
+    }
+}
 ````
 
 Also below Method implemented in RESTException Handler :
@@ -300,16 +311,35 @@ Also below Method implemented in RESTException Handler :
     protected ResponseEntity<Object> handleInvalidToken(AuthenticationException ex) {
         ApiError requestError = new ApiError(NOT_FOUND);
         requestError.setMessage("The Token is Expired or Invalid.");
+        requestError.setDebugMessage("Please check the Entered Digest or Key.");
+        return buildResponseEntity(requestError);
+    }
+    
+    @ExceptionHandler(LimitExceedException.class)
+    protected ResponseEntity<Object> handleLimitExceed(LimitExceedException ex) {
+        RequestError requestError = new RequestError(BANDWIDTH_LIMIT_EXCEEDED);
+        requestError.setMessage("The Maximum Limit is Exceeded. Try a Minute Later.");
+        requestError.setDebugMessage("Please check the Headers to find refill wait time.");
         return buildResponseEntity(requestError);
     }
 ````
 so, in case of invalid token, below Error will return:
 ````
-{"apierror": {
+{"requesterror": {
    "status": "NOT_FOUND",
    "timestamp": "10-06-2022 02:24:00",
    "message": "The Token is Expired or Invalid.",
    "debugMessage": null,
+   "subErrors": null
+}}
+````
+and In case of Limit Exceedation :
+````
+{"requesterror": {
+   "status": "BANDWIDTH_LIMIT_EXCEEDED",
+   "timestamp": "10-06-2022 09:04:49",
+   "message": "The Maximum Limit is Exceeded. Try a Minute Later.",
+   "debugMessage": "Please check the Headers to find refill wait time.",
    "subErrors": null
 }}
 ````

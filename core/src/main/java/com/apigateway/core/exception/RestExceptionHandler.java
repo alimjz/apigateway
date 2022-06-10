@@ -80,6 +80,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleInvalidToken(AuthenticationException ex) {
         RequestError requestError = new RequestError(NOT_FOUND);
         requestError.setMessage("The Token is Expired or Invalid.");
+        requestError.setDebugMessage("Please check the Entered Digest or Key.");
         return buildResponseEntity(requestError);
     }
 

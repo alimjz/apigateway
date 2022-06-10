@@ -15,21 +15,23 @@ Below dependencies are used to create this project.
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/#build-image)
-* [Spring Configuration Processor](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#configuration-metadata-annotation-processor)
-* [Spring Security](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security)
+* [Spring Boot Security](https://docs.spring.io/spring-boot/docs/2.7.0/maven-plugin/reference/html/#build-image)
+
+* [Bucket4J](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security)
 * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#using-boot-devtools)
 * [Spring Native Reference Guide](https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/)
 * [Spring Data MongoDB](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
-* [OAuth2 Client](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security-oauth2-client)
-* [OAuth2 Resource Server](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-security-oauth2-server)
+* [Swagger Open API](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+* [Actuator](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+* [Jackson](https://docs.spring.io/spring-boot/docs/2.7.0/reference/htmlsingle/#boot-features-mongodb)
+
 
 # Practice Part
 
 The following practices is resolved and tested in this project:
 
 * [Spring-Data-JPA]()
-: this part implemented with Mongo DB. in Token Module, tokenImpl and tokenService classes use a repository. repository implements MongoRepository to quey and save the token informations to mongo DB. datasource is refered in properties file.
+  : this part implemented with Mongo DB. in Token Module, tokenImpl and tokenService classes use a repository. repository implements MongoRepository to quey and save the token informations to mongo DB. datasource is refered in properties file.
 ````
 @Data
 @Document(collection = "tokens")
@@ -80,7 +82,7 @@ public class TokenImpl implements Token, Serializable {
 
 ````
 * [Pagination Query]()
-: in repository a new custom method defined with @Query to find data based on pagination and it returns a list of tokens based on intered pageable info.
+  : in repository a new custom method defined with @Query to find data based on pagination and it returns a list of tokens based on intered pageable info.
 ````
 
 public interface TokenRepository extends MongoRepository<TokenImpl,String> {
@@ -95,13 +97,13 @@ public interface TokenRepository extends MongoRepository<TokenImpl,String> {
 
 ````
 * [Swagger UI]()
-: There are 3 REST service provided in Token module. you can run the project and use below address to check swagger UI to find service documentations.
+  : There are 3 REST service provided in Token module. you can run the project and use below address to check swagger UI to find service documentations.
 ````
 http://localhost:9091/swagger-ui/index.htm
 http://localhost:9091/v1/api
 ````
 * [Propertie usage]()
-: The properties such as Data base address or application profile are defined in properties file.
+  : The properties such as Data base address or application profile are defined in properties file.
 ````
 
 spring.config.activate.on-profile = dev
@@ -118,7 +120,7 @@ springdoc.swagger-ui.path=/documentation.html
 
 ````
 * [MapStruct]()
-: a map struct plugin implemented in Token module for TokenImp and TokenImpDto to use mapstruct for doing a conversion. generated source is :
+  : a map struct plugin implemented in Token module for TokenImp and TokenImpDto to use mapstruct for doing a conversion. generated source is :
 ````
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
@@ -175,7 +177,7 @@ public class TokenDtoConvertorImpl implements TokenDtoConvertor {
     }
 }
 ````
-* [REST APIs](): A controller defined in both core and Token modules. these controllers are providing some end points. also core module will invoke token module to verify the token information by API. 
+* [REST APIs](): A controller defined in both core and Token modules. these controllers are providing some end points. also core module will invoke token module to verify the token information by API.
 ````
 
 @RestController("/api/v1/movies")
@@ -278,7 +280,7 @@ public class ApiController {
 
 * [Exception Handling](): I did a customization on exception handling. the case is that if the authentication info is wrong, then a customized exception will trigger.
 
-My exception Class:
+My exceptions Class:
 ````
 public class AuthenticationException extends RuntimeException{
     public AuthenticationException(Class clazz){
@@ -292,6 +294,15 @@ public class AuthenticationException extends RuntimeException{
         return StringUtils.capitalize(entity) + "Invalid Authentication happened.";
     }
 }
+
+public class LimitExceedException extends RuntimeException{
+    public LimitExceedException(Class clazz){
+        super(LimitExceedException.generateMessage(clazz.getFields()));
+    }
+    private static String generateMessage(Field[] field) {
+        return Arrays.toString(field) + "Maximum Limit Exceeded." ;
+    }
+}
 ````
 
 Also below Method implemented in RESTException Handler :
@@ -300,16 +311,35 @@ Also below Method implemented in RESTException Handler :
     protected ResponseEntity<Object> handleInvalidToken(AuthenticationException ex) {
         ApiError requestError = new ApiError(NOT_FOUND);
         requestError.setMessage("The Token is Expired or Invalid.");
+        requestError.setDebugMessage("Please check the Entered Digest or Key.");
+        return buildResponseEntity(requestError);
+    }
+    
+    @ExceptionHandler(LimitExceedException.class)
+    protected ResponseEntity<Object> handleLimitExceed(LimitExceedException ex) {
+        RequestError requestError = new RequestError(BANDWIDTH_LIMIT_EXCEEDED);
+        requestError.setMessage("The Maximum Limit is Exceeded. Try a Minute Later.");
+        requestError.setDebugMessage("Please check the Headers to find refill wait time.");
         return buildResponseEntity(requestError);
     }
 ````
 so, in case of invalid token, below Error will return:
 ````
-{"apierror": {
+{"requesterror": {
    "status": "NOT_FOUND",
    "timestamp": "10-06-2022 02:24:00",
    "message": "The Token is Expired or Invalid.",
    "debugMessage": null,
+   "subErrors": null
+}}
+````
+and In case of Limit Exceedation :
+````
+{"requesterror": {
+   "status": "BANDWIDTH_LIMIT_EXCEEDED",
+   "timestamp": "10-06-2022 09:04:49",
+   "message": "The Maximum Limit is Exceeded. Try a Minute Later.",
+   "debugMessage": "Please check the Headers to find refill wait time.",
    "subErrors": null
 }}
 ````
