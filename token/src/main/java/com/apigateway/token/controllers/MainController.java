@@ -42,7 +42,8 @@ public class MainController {
 
     @Operation(summary = "Validate a token",description = "Check whether token is valid or not.",operationId = "authorize()")
     @PostMapping("/auth/{digest}")
-    public ResponseEntity<ResponseTokenAuth> authorize(@PathVariable("digest") String digest, @RequestBody RequestTokenAuth requestTokenAuth){
+    public ResponseEntity<ResponseTokenAuth> authorize(@PathVariable("digest") String digest,
+                                                       @RequestBody RequestTokenAuth requestTokenAuth){
 
         HttpHeaders httpHeaders = new HttpHeaders();
         if (tokenService.isValid(digest,requestTokenAuth.getKey()) &&

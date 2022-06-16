@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class RequestTokenAuth {
+public class  RequestTokenAuth {
     private String digest;
     private String key;
 
